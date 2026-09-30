@@ -1,0 +1,67 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FuneralPlaner – Särge</title>
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:#eee8df;color:#3b3027}
+.top{background:#5b4939;color:white;padding:16px 18px;font-size:24px}
+.wrap{max-width:900px;margin:auto;padding:20px}
+.back{display:inline-block;padding:12px 16px;background:#fff;border:1px solid #b9aa9a;border-radius:10px;text-decoration:none;color:#3b3027;margin-bottom:20px}
+.card{display:block;background:#fffdf9;border:1px solid #ddd2c5;border-radius:14px;padding:16px;margin:14px 0;text-decoration:none;color:inherit}
+.row{display:flex;gap:16px;align-items:center}.card img{width:120px;height:100px;object-fit:cover;border-radius:10px}
+.card h2{margin:0 0 6px;font-size:22px}.price{font-weight:bold;margin-top:8px}
+.cardActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.detailBtn,.selectBtn{display:inline-block;padding:10px 14px;border-radius:9px;font-size:15px;cursor:pointer}
+.detailBtn{background:#fff;border:1px solid #b9aa9a;color:#3b3027;text-decoration:none}
+.selectBtn{background:#5b4939;border:1px solid #5b4939;color:#fff}
+.selectBtn.selected{background:#6f7f5f;border-color:#6f7f5f}
+.selectBtn:disabled{opacity:.7;cursor:default}
+@media(max-width:600px){
+.card img{width:95px;height:80px}.card{padding:14px}.row{align-items:flex-start}
+.cardActions{gap:8px}.detailBtn,.selectBtn{padding:9px 11px}
+}
+</style></head><body>
+<div class="top">FuneralPlaner – Särge</div><main class="wrap">
+<a class="back" href="index.html">← Zur Übersicht</a><h1>Särge</h1><div id="list"></div>
+</main><script>
+const KEY='fp_exact_layout_catalog_v1';
+const SELKEY='fp_selection_v1';
+const CONFKEY='fp_selection_confirmed_v1';
+let data=[];try{data=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){}
+let selection=[];try{selection=JSON.parse(localStorage.getItem(SELKEY)||'[]')}catch(e){selection=[]}
+const selectionConfirmed=localStorage.getItem(CONFKEY)==='1';
+
+function esc(s){return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
+function isSelected(id){return selection.includes(id)}
+function saveSelection(){localStorage.setItem(SELKEY,JSON.stringify(selection))}
+function toggleSelection(id){
+ if(selectionConfirmed)return;
+ if(isSelected(id)) selection=selection.filter(x=>x!==id);
+ else selection.push(id);
+ saveSelection();
+ render();
+}
+function render(){
+ const items=data.filter(x=>x.category==='Särge');
+ document.getElementById('list').innerHTML=items.length?items.map(x=>{
+  const img=x.image||'sarg-urbano.jpg';
+  const selected=isSelected(x.id);
+  return `<div class="card">
+    <div class="row">
+      <img src="${esc(img)}" alt="${esc(x.name)}">
+      <div style="flex:1">
+        <h2>${esc(x.name)}</h2>
+        <div>${esc(x.desc||'')}</div>
+        <div class="price">${esc(x.price||'Auf Anfrage')}</div>
+        <div class="cardActions">
+          <a class="detailBtn" href="artikel.html?id=${encodeURIComponent(x.id)}&cat=sarge">Details ansehen →</a>
+          <button class="selectBtn ${selected?'selected':''}" onclick="toggleSelection('${esc(x.id)}')" ${selectionConfirmed?'disabled':''}>
+            ${selected?'✓ Ausgewählt':'＋ Auswählen'}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+ }).join(''):'<div class="card"><h2>Keine Artikel vorhanden.</h2></div>';
+}
+render();
+</script></body></html>
