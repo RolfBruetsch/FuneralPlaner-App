@@ -281,7 +281,7 @@ document.addEventListener('DOMContentLoaded',initPhotoGestures);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closePhoto()});
 /* ===== FuneralPlaner Dropbox Test v22 ===== */
 const DROPBOX_APP_KEY='gfxksjqguiowmqi';
-const DROPBOX_REDIRECT_URI='';
+const DROPBOX_REDIRECT_URI='https://rolfbruetsch.github.io/FuneralPlaner-App/';
 const DROPBOX_DATA_PATH='/FuneralPlaner-Daten.json';
 let dropboxAccessToken=localStorage.getItem('fp_dropbox_access_token')||sessionStorage.getItem('fp_dropbox_access_token')||'';
 let dropboxRefreshToken=localStorage.getItem('fp_dropbox_refresh_token')||sessionStorage.getItem('fp_dropbox_refresh_token')||'';
@@ -291,7 +291,7 @@ function cloudSetStatus(text,ok=false){const e=document.getElementById('cloudSta
 function randomString(n=64){const a=new Uint8Array(n);crypto.getRandomValues(a);return [...a].map(x=>'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~'[x%66]).join('').slice(0,n)}
 function base64url(bytes){let s='';for(const b of bytes)s+=String.fromCharCode(b);return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
 async function pkceChallenge(verifier){const d=new TextEncoder().encode(verifier);const h=await crypto.subtle.digest('SHA-256',d);return base64url(new Uint8Array(h))}
-function currentRedirectUri(){return ''}
+function currentRedirectUri(){return 'https://rolfbruetsch.github.io/FuneralPlaner-App/'}
 async function dropboxConnect(){
   const verifier=randomString(64), challenge=await pkceChallenge(verifier);
   sessionStorage.setItem('fp_dropbox_code_verifier',verifier);
