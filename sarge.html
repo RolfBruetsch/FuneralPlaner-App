@@ -1,0 +1,23 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FuneralPlaner – Särge</title>
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:#eee8df;color:#3b3027}
+.top{background:#5b4939;color:white;padding:16px 18px;font-size:24px}
+.wrap{max-width:900px;margin:auto;padding:20px}.back{display:inline-block;padding:12px 16px;background:#fff;border:1px solid #b9aa9a;border-radius:10px;text-decoration:none;color:#3b3027;margin-bottom:20px}
+.card{display:block;background:#fffdf9;border:1px solid #ddd2c5;border-radius:14px;padding:16px;margin:14px 0;text-decoration:none;color:inherit}
+.row{display:flex;gap:16px;align-items:center}.card img{width:120px;height:100px;object-fit:cover;border-radius:10px}.card h2{margin:0 0 6px;font-size:22px}.price{font-weight:bold;margin-top:8px}
+@media(max-width:600px){.card img{width:95px;height:80px}.card{padding:14px}}
+</style></head><body>
+<div class="top">FuneralPlaner – Särge</div><main class="wrap">
+<a class="back" href="index.html">← Zur Übersicht</a><h1>Särge</h1><div id="list"></div>
+</main><script>
+const KEY='fp_exact_layout_catalog_v1';
+let data=[];try{data=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){}
+function esc(s){return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
+const items=data.filter(x=>x.category==='Särge');
+document.getElementById('list').innerHTML=items.length?items.map(x=>{
+ const img=x.image||'sarg-urbano.jpg';
+ return `<a class="card" href="artikel.html?id=${encodeURIComponent(x.id)}&cat=sarge"><div class="row"><img src="${esc(img)}" alt="${esc(x.name)}"><div><h2>${esc(x.name)}</h2><div>${esc(x.desc||'')}</div><div class="price">${esc(x.price||'Auf Anfrage')}</div><div style="margin-top:10px">Details ansehen →</div></div></div></a>`;
+}).join(''):'<div class="card"><h2>Keine Artikel vorhanden.</h2></div>';
+</script></body></html>

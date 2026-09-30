@@ -1,0 +1,28 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FuneralPlaner – Artikel</title>
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:#eee8df;color:#3b3027}
+.top{background:#5b4939;color:white;padding:16px 18px;font-size:24px}.wrap{max-width:900px;margin:auto;padding:20px}
+.back{display:inline-block;padding:12px 16px;background:#fff;border:1px solid #b9aa9a;border-radius:10px;text-decoration:none;color:#3b3027;margin-bottom:20px}
+.panel{background:#fffdf9;border:1px solid #ddd2c5;border-radius:14px;padding:20px}.photos{display:flex;gap:14px;flex-wrap:wrap}.photos img{width:260px;max-width:100%;border-radius:12px;cursor:zoom-in}.price{font-size:20px;font-weight:bold;margin:14px 0}
+#viewer{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);align-items:center;justify-content:center;z-index:10}#viewer img{max-width:94%;max-height:90%}
+</style></head><body>
+<div class="top">FuneralPlaner – Artikel</div><main class="wrap">
+<a id="back" class="back" href="sarge.html">← Zurück zu Särgen</a><div id="detail" class="panel"></div>
+</main><div id="viewer" onclick="this.style.display='none'"><img id="big"></div>
+<script>
+const KEY='fp_exact_layout_catalog_v1';
+let data=[];try{data=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){}
+function esc(s){return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
+const id=new URLSearchParams(location.search).get('id');
+const x=data.find(a=>String(a.id)===String(id));
+if(!x){document.getElementById('detail').innerHTML='<h2>Artikel nicht gefunden.</h2>'}
+else{
+ const imgs=[x.image,x.image2,x.photo2,x.secondImage].filter(Boolean);
+ const unique=[...new Set(imgs.length?imgs:['sarg-urbano.jpg'])];
+ document.title='FuneralPlaner – '+(x.name||'Artikel');
+ document.getElementById('detail').innerHTML=`<h1>${esc(x.name)}</h1><div class="photos">${unique.map(i=>`<img src="${esc(i)}" onclick="showPhoto(this.src)" alt="${esc(x.name)}">`).join('')}</div><div class="price">${esc(x.price||'Auf Anfrage')}</div><p>${esc(x.desc||'')}</p>${x.material?`<p><b>Material:</b> ${esc(x.material)}</p>`:''}${x.feature?`<p><b>Besonderheit:</b> ${esc(x.feature)}</p>`:''}`;
+}
+function showPhoto(src){document.getElementById('big').src=src;document.getElementById('viewer').style.display='flex'}
+</script></body></html>
