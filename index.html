@@ -219,11 +219,11 @@ function home(){renderHome();show('home')}
 function renderHome(){
   const el=document.querySelector('.cats');
   if(!el)return;
-  el.innerHTML=
-    '<a class="cat" href="#" onclick="event.preventDefault();openCat('Särge')"><div class="catpic" style="background-image:url('sarg-urbano.jpg')"></div><div class="catfoot">Särge <span class="arrow">→</span></div></a>'+
-    '<a class="cat" href="#" onclick="event.preventDefault();openCat('Urnen')"><div class="catpic" style="background-image:url('urne.jpg')"></div><div class="catfoot">Urnen <span class="arrow">→</span></div></a>'+
-    '<a class="cat" href="#" onclick="event.preventDefault();openCat('Blumen')"><div class="catpic" style="background-image:url('blumen.jpg')"></div><div class="catfoot">Blumen <span class="arrow">→</span></div></a>'+
-    '<a class="cat" href="#" onclick="event.preventDefault();openCat('Weitere')"><div class="catpic" style="background-image:url('weitere-artikel.jpg')"></div><div class="catfoot">Weitere Artikel <span class="arrow">→</span></div></a>';
+  el.innerHTML=`
+    <a class="cat" href="#" onclick="event.preventDefault();openCat('Särge')"><div class="catpic" style="background-image:url('sarg-urbano.jpg')"></div><div class="catfoot">Särge <span class="arrow">→</span></div></a>
+    <a class="cat" href="#" onclick="event.preventDefault();openCat('Urnen')"><div class="catpic" style="background-image:url('urne.jpg')"></div><div class="catfoot">Urnen <span class="arrow">→</span></div></a>
+    <a class="cat" href="#" onclick="event.preventDefault();openCat('Blumen')"><div class="catpic" style="background-image:url('blumen.jpg')"></div><div class="catfoot">Blumen <span class="arrow">→</span></div></a>
+    <a class="cat" href="#" onclick="event.preventDefault();openCat('Weitere')"><div class="catpic" style="background-image:url('weitere-artikel.jpg')"></div><div class="catfoot">Weitere Artikel <span class="arrow">→</span></div></a>`;
 }
 function toggleCatManager(){let e=document.getElementById('catManager');e.style.display=e.style.display==='none'?'block':'none';renderCategoryManager()}
 function renderCategoryManager(){document.getElementById('catList').innerHTML=categories.map(c=>`<div class="catChip"><span>${esc(c)}</span><button title="Umbenennen" onclick="renameCategory('${esc(c)}')">✎</button><button title="Löschen" onclick="deleteCategory('${esc(c)}')">×</button></div>`).join('')}
