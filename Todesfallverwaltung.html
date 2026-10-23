@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FuneralPlaner – Todesfallverwaltung V12</title>
+<style>
+:root{--ink:#273238;--muted:#66747b;--line:#d9dfdf;--paper:#fff;--bg:#f3f5f4;--accent:#8a6c48;--accent2:#e9dfd2;--ok:#386b56;--warn:#8a5a23}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,Segoe UI,Arial,sans-serif}
+header{background:#283136;color:#fff;padding:18px max(16px,calc((100vw - 1120px)/2));display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{font-weight:800;letter-spacing:.11em}.brand small{display:block;font-weight:500;letter-spacing:.03em;color:#d8dedd;font-size:12px}
+.pill{border:1px solid #738087;border-radius:99px;padding:5px 10px;font-size:12px;color:#e9eeee}
+main{max-width:1120px;margin:22px auto;padding:0 16px 40px}
+.notice{background:#fff6e9;border:1px solid #e8d4b8;padding:12px 14px;border-radius:12px;color:#614b32;margin-bottom:18px}
+.layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:18px}
+.panel,.card{background:var(--paper);border:1px solid var(--line);border-radius:15px;box-shadow:0 2px 8px #17212608}
+.panel{padding:16px;height:max-content}.card{padding:20px}
+h1{font-size:25px;margin:0 0 5px}h2{font-size:17px;margin:0 0 14px}h3{font-size:14px;margin:20px 0 10px;color:#5a4938;text-transform:uppercase;letter-spacing:.05em}
+.sub{color:var(--muted);font-size:13px;margin:0 0 18px}
+button,.button{border:0;border-radius:9px;padding:10px 13px;background:var(--ink);color:#fff;font:600 13px system-ui;cursor:pointer}
+button.secondary,.button.secondary{background:#edf0ef;color:var(--ink);border:1px solid var(--line)}
+button.accent{background:var(--accent)}button:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 0}
+.fieldgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+label{display:block;font-size:12px;color:#536169;font-weight:650;margin-bottom:5px}
+input,select,textarea{width:100%;padding:10px;border:1px solid #cbd3d4;border-radius:8px;background:#fff;color:var(--ink);font:14px system-ui}
+textarea{min-height:76px;resize:vertical}
+.full{grid-column:1/-1}
+.small{font-size:12px;color:var(--muted)}
+.caseitem{border:1px solid var(--line);border-radius:10px;padding:11px;margin-top:9px;cursor:pointer;background:#fff}
+.caseitem.active{border-color:var(--accent);background:#faf6f1}.caseitem strong{display:block;font-size:13px}.caseitem span{font-size:12px;color:var(--muted)}
+.section{border-top:1px solid var(--line);padding-top:16px;margin-top:18px}
+.checklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.check{display:flex;align-items:flex-start;gap:8px;border:1px solid var(--line);border-radius:9px;padding:9px;font-size:13px}.check input{width:auto;margin-top:3px}
+.doclist{display:grid;gap:7px}.docrow{display:flex;justify-content:space-between;gap:10px;align-items:center;border:1px solid var(--line);border-radius:9px;padding:9px 10px;font-size:13px}
+.sigwrap{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}.sigwrap canvas{display:block;width:100%;height:145px;touch-action:none}.sigbar{display:flex;justify-content:space-between;align-items:center;background:#f7f8f7;border-top:1px solid var(--line);padding:7px 10px}
+.status{font-size:12px;color:var(--ok);min-height:18px}.hidden{display:none!important}
+.modalback{position:fixed;inset:0;background:#17212688;display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}.modal{width:min(540px,100%);background:#fff;border-radius:16px;padding:20px;box-shadow:0 20px 70px #0003;max-height:85vh;overflow:auto}.choice{display:flex;align-items:flex-start;gap:12px;padding:13px;border:1px solid var(--line);border-radius:10px;margin:9px 0;cursor:pointer}.choice:hover{border-color:var(--accent);background:#faf6f1}.choice input{width:auto;margin-top:4px}.choice strong{display:block}.attached{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.attached .small{flex:1}
+footer{margin-top:18px;color:var(--muted);font-size:12px}
+@media(max-width:780px){.layout{grid-template-columns:1fr}.panel{order:2}.card{order:1}.fieldgrid,.checklist{grid-template-columns:1fr}main{margin-top:12px}.card{padding:15px}h1{font-size:22px}}
+.pdf-export{background:#fff;color:#222;font:12px/1.4 Arial,sans-serif;padding:12mm;width:186mm}.pdf-export h1{font-size:20px}.pdf-export h3{font-size:12px;margin:10px 0 6px}.pdf-export .section{break-inside:avoid;page-break-inside:avoid;border-top:1px solid #ccc;padding-top:8px;margin-top:12px}.pdf-export .fieldgrid,.pdf-export .checklist{display:grid;grid-template-columns:1fr 1fr;gap:8px}.pdf-export .full{grid-column:1/-1}.pdf-export .field{min-width:0;break-inside:avoid;page-break-inside:avoid}.pdf-export .pdf-value{white-space:pre-wrap;overflow-wrap:anywhere;border-bottom:1px solid #ccc;min-height:18px;padding:2px 0}.pdf-export .small{font-size:10px}.pdf-export .sigwrap canvas{max-width:100%}.pdf-export .docrow{border:0;padding:3px 0}.pdf-export .actions,.pdf-export button,.pdf-export .sigbar{display:none!important}@media print{header,.panel,.notice,.actions,.no-print,footer{display:none!important}body{background:white}.layout{display:block}main{margin:0;padding:0}.card{border:0;box-shadow:none;padding:0}.section{break-inside:avoid}input,select,textarea{border:0;border-bottom:1px solid #aaa;border-radius:0;padding:4px 0}h3{margin-top:12px}}
+
+.caseitem{position:relative;padding-right:82px}
+.caseitem .delete-case{position:absolute;right:8px;top:50%;transform:translateY(-50%);padding:6px 8px;font-size:12px;background:#8d3030;color:#fff;border:0;border-radius:6px}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+<header><div class="brand">FUNERALPLANER<small>Todesfallverwaltung · eigenständiger Prototyp</small></div><span class="pill">Todesfallverwaltung · Version V12</span></header>
+<main>
+<div class="notice"><strong>Prototyp – noch nicht für echte Personendaten verwenden.</strong> Die Dropbox-Ablage ist separat vom Bestatterkatalog V100. Vor dem produktiven Einsatz müssen Dropbox-Verbindung und E-Mail-Ablauf getestet werden. Der Bestatterkatalog und seine Daten werden nicht verändert.</div>
+<div class="layout">
+<aside class="panel">
+  <h2>Todesfallakten</h2>
+  <button class="accent" id="newCase" style="width:100%">＋ Neuen Todesfall erfassen</button>
+  <p class="small" style="margin-top:12px">Ohne Dropbox-Verbindung bleiben Demo-Akten nur während dieser Browser-Sitzung verfügbar.</p>
+  <div id="caseList"></div>
+  <div class="section">
+    <h3>Dropbox · separate Ablage</h3>
+    <p class="small">Für die Verbindung ist eine eigene Dropbox-App mit Zugriffstyp «App folder» erforderlich. Der Bestatterkatalog wird nicht verwendet oder verändert.</p>
+    <label for="dropboxAppKey">Dropbox-App-Key</label>
+    <input id="dropboxAppKey" autocomplete="off" placeholder="App-Key der neuen Dropbox-App">
+    <div class="actions"><button type="button" id="connectDropbox">Dropbox verbinden</button><button type="button" class="secondary" id="syncDropbox">Akten laden</button></div>
+    <p class="small" id="redirectUriText"></p>
+    <p class="status" id="dropboxStatus" role="status">Noch nicht verbunden.</p>
+  </div>
+</aside>
+<section class="card">
+  <h1 id="pageTitle">Neuer Todesfall</h1>
+  <p class="sub">Personalien erfassen, Unterlagen zuordnen, Formular unterschreiben, Vollmacht öffnen und PDFs ausgeben.</p>
+  <form id="caseForm">
+    <h3>1 · Verstorbene Person</h3>
+    <div class="fieldgrid">
+      <div><label for="lastName">Familienname *</label><input id="lastName" required autocomplete="family-name"></div>
+      <div><label for="firstName">Vorname(n) *</label><input id="firstName" required autocomplete="given-name"></div>
+      <div><label for="birthDate">Geburtsdatum</label><input id="birthDate" type="date"></div>
+      <div><label for="deathDate">Todesdatum *</label><input id="deathDate" type="date" required></div>
+      <div><label for="civil">Zivilstand</label><select id="civil"><option value="">Bitte wählen</option><option>Ledig</option><option>Verheiratet</option><option>Verwitwet</option><option>Geschieden</option><option>Eingetragene Partnerschaft</option><option>Unbekannt</option></select></div>
+      <div><label for="nationality">Staatsangehörigkeit</label><input id="nationality"></div>
+      <div class="full"><label for="address">Letzte Wohnadresse</label><input id="address" autocomplete="street-address"></div>
+      <div><label for="zipcity">PLZ / Ort</label><input id="zipcity" autocomplete="postal-code"></div>
+      <div><label for="deathPlace">Sterbeort</label><input id="deathPlace" placeholder="Spital, Heim, zu Hause …"></div>
+    </div>
+    <div class="section">
+      <h3>2 · Angehörige / Kontaktperson</h3>
+      <div class="fieldgrid">
+        <div><label for="contactName">Name und Vorname</label><input id="contactName"></div>
+        <div><label for="relationship">Beziehung</label><input id="relationship" placeholder="z. B. Tochter, Ehepartner"></div>
+        <div><label for="contactEmail">E-Mail-Adresse</label><input id="contactEmail" type="email" autocomplete="email"></div>
+        <div><label for="contactPhone">Telefon</label><input id="contactPhone" type="tel" autocomplete="tel"></div>
+        <div class="full"><label for="contactAddress">Adresse der Kontaktperson</label><input id="contactAddress"></div>
+      </div>
+    </div>
+    <div class="section">
+      <h3>3 · Bestattungsamt und Wünsche</h3>
+      <div class="fieldgrid">
+        <div><label for="office">Zuständiges Bestattungsamt</label><input id="office"></div>
+        <div><label for="officeEmail">E-Mail-Adresse Bestattungsamt</label><input id="officeEmail" type="email" placeholder="amt@gemeinde.ch"></div>
+        <div><label for="burial">Bestattungsart</label><select id="burial"><option value="">Noch offen</option><option>Erdbestattung</option><option>Kremation</option><option>Andere / noch abzuklären</option></select></div>
+        <div><label for="cemetery">Gewünschter Bestattungsort / Friedhof</label><input id="cemetery"></div>
+        <div><label for="ceremony">Abdankung / Trauerfeier</label><select id="ceremony"><option value="">Noch offen</option><option>Kirchlich</option><option>Weltlich</option><option>Keine</option></select></div>
+        <div class="full"><label for="notes">Bemerkungen / weitere Wünsche</label><textarea id="notes"></textarea></div>
+      </div>
+    </div>
+    <div class="section">
+      <h3>4 · Unterlagen</h3>
+      <p class="small">Auf dem iPhone kann die Kamera über die Dateiauswahl genutzt werden. iPhone: Kästchen antippen und Dokument fotografieren. PC: Kästchen antippen und vorhandenes Foto oder PDF auswählen. Die Datei wird passend benannt und beim Speichern der Fallakte in die separate FuneralPlaner-Dropbox hochgeladen.</p>
+      <label for="documents">Dokumente fotografieren oder hochladen</label>
+      <input id="documents" type="file" multiple accept="image/*,.pdf" capture="environment">
+      <div id="docList" class="doclist" style="margin-top:9px"></div>
+      <div class="checklist" style="margin-top:12px">
+        <label class="check"><input type="checkbox" id="docDeath"> Ärztliche Todesbescheinigung</label>
+        <label class="check"><input type="checkbox" id="docID"> ID / Pass verstorbene Person</label>
+        <label class="check"><input type="checkbox" id="docRelativeID"> ID / Pass meldende Person</label>
+        <label class="check"><input type="checkbox" id="docFamily"> Familienausweis / Familienbüchlein</label>
+        <label class="check"><input type="checkbox" id="docPermit"> Aufenthaltsbewilligung, falls zutreffend</label>
+        <label class="check"><input type="checkbox" id="docOther"> Weitere Dokumente</label>
+        <label class="check"><input type="checkbox" id="docWish"> Bestattungsverfügung / Vollmacht</label>
+      </div>
+      <div id="selectedPowerDocs" class="doclist" style="margin-top:9px" aria-live="polite"></div>
+    </div>
+    <div class="section">
+      <h3>5 · Unterschrift der Angehörigen</h3>
+      <p class="small">Mit Finger oder Stift direkt im Unterschriftsfeld unterschreiben.</p>
+      <div class="sigwrap"><canvas id="signature" aria-label="Unterschriftsfeld"></canvas><div class="sigbar"><span class="small" id="sigStatus">Noch nicht unterschrieben</span><button type="button" class="secondary" id="clearSig">Unterschrift löschen</button></div></div>
+    </div>
+    <div class="section no-print">
+      <h3>6 · Vollmachten</h3>
+      <p class="small">Die Vollmacht zur Meldung eines Todesfalls ist fest in dieser Anwendung hinterlegt und kann bei jedem Todesfall ausgewählt, mit den vorhandenen Falldaten vorausgefüllt, geöffnet und ausgedruckt bzw. als PDF gespeichert werden. Die Auswahl wird der Fallakte zugeordnet; unterschriebene PDFs können zusätzlich als Fallunterlagen abgelegt werden.</p>
+      <div class="actions"><button type="button" id="newPower">Neue Vollmacht erstellen</button></div>
+      <div id="powerList" class="small"></div>
+    </div>
+    <div class="section">
+      <h3>7 · Dokumente ausgeben</h3>
+      <p class="small">Hier kannst du die Fallakte als PDF öffnen oder eine E-Mail an das Bestattungsamt vorbereiten. Das Mailprogramm kann den Text übernehmen; den ärztlichen Todesschein musst du dort als Datei anhängen, da eine statische GitHub-Seite keine Dateianhänge automatisch an eine E-Mail übergeben kann.</p>
+      <div class="actions no-print">
+        <button type="button" id="saveCase">Fall speichern</button>
+        <button type="button" class="secondary" id="printPdf">PDF anzeigen</button>
+        <button type="button" class="secondary" id="emailPlan">E-Mail an Bestattungsamt</button>
+      </div>
+      <p class="status" id="status" role="status"></p>
+    </div>
+  </form>
+  <footer>FuneralPlaner Todesfallverwaltung · Version V12 · Eigenständige Anwendung, getrennt vom Bestatterkatalog V100. Die Vollmachtvorlage ist integriert. Dropbox-Anbindung und E-Mail-Versand vor produktivem Einsatz testen.</footer>
+</section>
+</div>
+</main>
+<div id="powerModal" class="modalback hidden" role="dialog" aria-modal="true" aria-labelledby="powerModalTitle">
+  <div class="modal">
+    <h2 id="powerModalTitle">Hinterlegte Vollmacht auswählen</h2>
+    <p class="small">Die Vollmacht ist fest in der Anwendung hinterlegt und steht bei jedem Todesfall zur Auswahl. Nach dem Zuordnen kann sie geöffnet, mit Falldaten vorausgefüllt und ausgedruckt bzw. als PDF gespeichert werden.</p>
+    <div id="powerChoices"></div>
+    <div class="actions"><button type="button" class="secondary" id="cancelPowerChoice">Abbrechen</button></div>
+  </div>
+</div>
+<div id="emailModal" class="modalback hidden" role="dialog" aria-modal="true" aria-labelledby="emailModalTitle">
+  <div class="modal">
+    <h2 id="emailModalTitle">E-Mail an das Bestattungsamt</h2>
+    <p class="small">Die Schaltfläche unten öffnet dein Standard-Mailprogramm mit Empfänger, Betreff und Nachricht. Bitte füge dort den ärztlichen Todesschein als Anhang hinzu und sende die E-Mail anschliessend selbst.</p>
+    <div class="fieldgrid">
+      <div class="full"><label for="mailTo">Empfänger</label><input id="mailTo" type="email" placeholder="E-Mail-Adresse des Bestattungsamts"></div>
+      <div class="full"><label for="mailSubject">Betreff</label><input id="mailSubject"></div>
+      <div class="full"><label for="mailBody">Nachricht</label><textarea id="mailBody" style="min-height:230px"></textarea></div>
+    </div>
+    <h3>Vorgesehener Anhang</h3>
+    <p class="small">Der ärztliche Todesschein soll der E-Mail beigefügt werden. Das Mailprogramm übernimmt Dateianhänge aus der Webseite nicht automatisch; bitte lade die Datei bei Bedarf vorher über Punkt 4 herunter bzw. wähle sie im Mailprogramm aus.</p>
+    <div id="mailAttachments" class="doclist"></div>
+    <p class="small">Wichtig: Aus einer statischen HTML-Datei auf GitHub Pages können E-Mails nicht direkt und mit Anhängen versendet werden. Die Nachricht wird an dein Mailprogramm übergeben; den Todesschein bitte dort manuell anhängen.</p>
+    <div class="actions"><button type="button" class="accent" id="openMailApp">E-Mail im Mailprogramm öffnen</button><button type="button" class="secondary" id="copyMailBody">Nachricht kopieren</button><button type="button" class="secondary" id="closeEmailModal">Schliessen</button></div>
+    <p class="status" id="mailStatus" role="status"></p>
+  </div>
+</div>
+<script>
+(() => {
+const $ = id => document.getElementById(id);
+const fields = ['lastName','firstName','birthDate','deathDate','civil','nationality','address','zipcity','deathPlace','contactName','relationship','contactEmail','contactPhone','contactAddress','office','officeEmail','burial','cemetery','ceremony','notes','docDeath','docID','docRelativeID','docFamily','docPermit','docOther','docWish'];
+let cases = [], currentId = null, attachments = [], remoteAttachments = [], signatureData = '', powers = [], selectedPowerDocs = [], otherDocNames = [];
+let dropboxAccessToken = sessionStorage.getItem('fp_td_dbx_access') || '', dropboxRefreshToken = sessionStorage.getItem('fp_td_dbx_refresh') || '', dropboxTokenExpiry = Number(sessionStorage.getItem('fp_td_dbx_expiry') || 0), dropboxState = '';
+const DROPBOX_ROOT='/cases';
+const storedPowerTemplates = [{id:'death-report-power', name:'Vollmacht zur Meldung eines Todesfalls', description:'Fest in der Todesfallverwaltung hinterlegte Vorlage · für jeden Fall auswählbar', kind:'embedded-template', templateB64:'PCFkb2N0eXBlIGh0bWw+CjxodG1sIGxhbmc9ImRlLUNIIj4KPGhlYWQ+CjxtZXRhIGNoYXJzZXQ9InV0Zi04Ij48bWV0YSBuYW1lPSJ2aWV3cG9ydCIgY29udGVudD0id2lkdGg9ZGV2aWNlLXdpZHRoLGluaXRpYWwtc2NhbGU9MSI+Cjx0aXRsZT5GdW5lcmFsUGxhbmVyIOKAkyBWb2xsbWFjaHQgenVyIFRvZGVzZmFsbG1lbGR1bmc8L3RpdGxlPgo8c3R5bGU+Cjpyb290ey0taW5rOiMyNDMxM2E7LS1tdXRlZDojNWQ2OTcwOy0tbGluZTojY2JkMmQ1Oy0tYWNjZW50OiMyODRkNTV9Kntib3gtc2l6aW5nOmJvcmRlci1ib3h9Ym9keXttYXJnaW46MDtiYWNrZ3JvdW5kOiNlZGYwZjA7Y29sb3I6dmFyKC0taW5rKTtmb250OjE2cHgvMS41IEFyaWFsLEhlbHZldGljYSxzYW5zLXNlcmlmfS5wYWdle21heC13aWR0aDo4NTBweDttYXJnaW46MjhweCBhdXRvO2JhY2tncm91bmQ6I2ZmZjtwYWRkaW5nOjQ4cHggNTZweDtib3gtc2hhZG93OjAgOHB4IDI4cHggIzAwMDF9LmJyYW5ke2ZvbnQtc2l6ZToxM3B4O2xldHRlci1zcGFjaW5nOjNweDtmb250LXdlaWdodDo3MDA7Y29sb3I6dmFyKC0tYWNjZW50KX1oMXtmb250LXNpemU6MjdweDtsaW5lLWhlaWdodDoxLjI7bWFyZ2luOjI2cHggMCA4cHh9IC5zdWJ0aXRsZXtjb2xvcjp2YXIoLS1tdXRlZCk7bWFyZ2luOjAgMCAyOHB4fS5ub3RpY2V7YmFja2dyb3VuZDojZjRmN2Y3O2JvcmRlci1sZWZ0OjRweCBzb2xpZCB2YXIoLS1hY2NlbnQpO3BhZGRpbmc6MTJweCAxNXB4O21hcmdpbjoyMHB4IDB9LmZpZWxkc3tkaXNwbGF5OmdyaWQ7Z3JpZC10ZW1wbGF0ZS1jb2x1bW5zOjFmciAxZnI7Z2FwOjE2cHggMjBweDttYXJnaW46MjBweCAwfS5maWVsZC5mdWxse2dyaWQtY29sdW1uOjEvLTF9bGFiZWx7ZGlzcGxheTpibG9jaztmb250LXNpemU6MTNweDtmb250LXdlaWdodDo3MDA7bWFyZ2luLWJvdHRvbTo1cHg7Y29sb3I6IzQ2NTM1YX1pbnB1dCx0ZXh0YXJlYXtmb250OmluaGVyaXQ7Y29sb3I6dmFyKC0taW5rKTt3aWR0aDoxMDAlO2JvcmRlcjowO2JvcmRlci1ib3R0b206MXB4IHNvbGlkICM3ZThhOTA7cGFkZGluZzo4cHggMnB4O2JhY2tncm91bmQ6dHJhbnNwYXJlbnQ7Ym9yZGVyLXJhZGl1czowfXRleHRhcmVhe21pbi1oZWlnaHQ6NTZweDtyZXNpemU6dmVydGljYWw7Ym9yZGVyOjFweCBzb2xpZCB2YXIoLS1saW5lKTtwYWRkaW5nOjhweH0uc2VjdGlvbnttYXJnaW4tdG9wOjI0cHh9LnNlY3Rpb24gaDJ7Zm9udC1zaXplOjE3cHg7bWFyZ2luOjAgMCAxMHB4fS50aWNre2Rpc3BsYXk6ZmxleDtnYXA6OXB4O2FsaWduLWl0ZW1zOmZsZXgtc3RhcnQ7bWFyZ2luOjhweCAwfS50aWNrIGlucHV0e3dpZHRoOmF1dG87bWFyZ2luLXRvcDo1cHh9LnNpZ25hdHVyZXN7ZGlzcGxheTpncmlkO2dyaWQtdGVtcGxhdGUtY29sdW1uczoxZnIgMWZyO2dhcDoyOHB4O21hcmdpbi10b3A6MzBweH0uc2lnbntwYWRkaW5nLXRvcDozNnB4O2JvcmRlci1ib3R0b206MXB4IHNvbGlkICM2Njc0N2F9LnNtYWxse2ZvbnQtc2l6ZToxMnB4O2NvbG9yOnZhcigtLW11dGVkKTttYXJnaW4tdG9wOjVweH0uYWN0aW9uc3tkaXNwbGF5OmZsZXg7Z2FwOjEwcHg7anVzdGlmeS1jb250ZW50OmZsZXgtZW5kO21hcmdpbjowIGF1dG8gMTZweDttYXgtd2lkdGg6ODUwcHh9LmFjdGlvbnMgYnV0dG9ue2JhY2tncm91bmQ6dmFyKC0tYWNjZW50KTtjb2xvcjp3aGl0ZTtib3JkZXI6MDtwYWRkaW5nOjExcHggMTZweDtib3JkZXItcmFkaXVzOjZweDtmb250LXdlaWdodDo3MDA7Y3Vyc29yOnBvaW50ZXJ9LmFjdGlvbnMgYnV0dG9uLnNlY29uZGFyeXtiYWNrZ3JvdW5kOiNmZmY7Y29sb3I6dmFyKC0tYWNjZW50KTtib3JkZXI6MXB4IHNvbGlkIHZhcigtLWFjY2VudCl9LmZvb3Rub3Rle2ZvbnQtc2l6ZToxMnB4O2NvbG9yOnZhcigtLW11dGVkKTttYXJnaW4tdG9wOjI2cHg7Ym9yZGVyLXRvcDoxcHggc29saWQgdmFyKC0tbGluZSk7cGFkZGluZy10b3A6MTJweH0KQG1lZGlhKG1heC13aWR0aDo2NTBweCl7LnBhZ2V7bWFyZ2luOjA7cGFkZGluZzoyOHB4IDIycHg7Ym94LXNoYWRvdzpub25lfS5maWVsZHMsLnNpZ25hdHVyZXN7Z3JpZC10ZW1wbGF0ZS1jb2x1bW5zOjFmcn0uZmllbGQuZnVsbHtncmlkLWNvbHVtbjphdXRvfS5hY3Rpb25ze3BhZGRpbmc6MCAxMnB4O2ZsZXgtd3JhcDp3cmFwfS5hY3Rpb25zIGJ1dHRvbntmbGV4OjF9fQpAbWVkaWEgcHJpbnR7Ym9keXtiYWNrZ3JvdW5kOiNmZmZ9LnBhZ2V7bWFyZ2luOjA7bWF4LXdpZHRoOm5vbmU7cGFkZGluZzoyMG1tIDE4bW07Ym94LXNoYWRvdzpub25lfS5hY3Rpb25ze2Rpc3BsYXk6bm9uZX1pbnB1dCx0ZXh0YXJlYXtjb2xvcjojMDAwfWgxe2ZvbnQtc2l6ZToyNHB4fS5ub3RpY2V7YmFja2dyb3VuZDojZmZmfX0KPC9zdHlsZT48L2hlYWQ+Cjxib2R5Pgo8ZGl2IGNsYXNzPSJhY3Rpb25zIj48YnV0dG9uIGNsYXNzPSJzZWNvbmRhcnkiIG9uY2xpY2s9Imhpc3RvcnkuYmFjaygpIj5adXLDvGNrPC9idXR0b24+PGJ1dHRvbiBvbmNsaWNrPSJ3aW5kb3cucHJpbnQoKSI+RHJ1Y2tlbiAvIGFscyBQREYgc3BlaWNoZXJuPC9idXR0b24+PC9kaXY+CjxtYWluIGNsYXNzPSJwYWdlIj4KPGRpdiBjbGFzcz0iYnJhbmQiPkZVTkVSQUxQTEFORVI8L2Rpdj4KPGgxPlZvbGxtYWNodCB6dXIgTWVsZHVuZyBlaW5lcyBUb2Rlc2ZhbGxzPC9oMT4KPHAgY2xhc3M9InN1YnRpdGxlIj5adXIgVm9ybGFnZSBiZWltIHp1c3TDpG5kaWdlbiBCZXN0YXR0dW5nc2FtdCAvIGRlciB6dXN0w6RuZGlnZW4gR2VtZWluZGVzdGVsbGU8L3A+CjxkaXYgY2xhc3M9Im5vdGljZSI+TWl0IGRpZXNlciBWb2xsbWFjaHQgZXJtw6RjaHRpZ3QgZGllIHVudGVyemVpY2huZW5kZSBQZXJzb24gRnVuZXJhbFBsYW5lciwgZGVuIFRvZGVzZmFsbCBkZXIgbmFjaHN0ZWhlbmQgYmV6ZWljaG5ldGVuIFBlcnNvbiBpbSBOYW1lbiBkZXIgQW5nZWjDtnJpZ2VuIGJlaW0genVzdMOkbmRpZ2VuIEJlc3RhdHR1bmdzYW10IHp1IG1lbGRlbiB1bmQgZGFmw7xyIGVyZm9yZGVybGljaGUgQW5nYWJlbiB1bmQgVW50ZXJsYWdlbiB6dSDDvGJlcm1pdHRlbG4uPC9kaXY+CjxkaXYgY2xhc3M9InNlY3Rpb24iPjxoMj4xLiBWZXJzdG9yYmVuZSBQZXJzb248L2gyPjxkaXYgY2xhc3M9ImZpZWxkcyI+CjxkaXYgY2xhc3M9ImZpZWxkIj48bGFiZWw+Vm9ybmFtZShuKTwvbGFiZWw+PGlucHV0IGF1dG9jb21wbGV0ZT0ib2ZmIj48L2Rpdj48ZGl2IGNsYXNzPSJmaWVsZCI+PGxhYmVsPk5hY2huYW1lPC9sYWJlbD48aW5wdXQgYXV0b2NvbXBsZXRlPSJvZmYiPjwvZGl2Pgo8ZGl2IGNsYXNzPSJmaWVsZCI+PGxhYmVsPkdlYnVydHNkYXR1bTwvbGFiZWw+PGlucHV0IHBsYWNlaG9sZGVyPSJUVC5NTS5KSkpKIj48L2Rpdj48ZGl2IGNsYXNzPSJmaWVsZCI+PGxhYmVsPlRvZGVzZGF0dW08L2xhYmVsPjxpbnB1dCBwbGFjZWhvbGRlcj0iVFQuTU0uSkpKSiI+PC9kaXY+CjxkaXYgY2xhc3M9ImZpZWxkIGZ1bGwiPjxsYWJlbD5MZXR6dGVyIFdvaG5zaXR6IChBZHJlc3NlLCBQTFosIE9ydCk8L2xhYmVsPjxpbnB1dD48L2Rpdj4KPC9kaXY+PC9kaXY+CjxkaXYgY2xhc3M9InNlY3Rpb24iPjxoMj4yLiBWb2xsbWFjaHQgZXJ0ZWlsZW5kZSBQZXJzb24gKEFuZ2Vow7ZyaWdlIC8gYmVyZWNodGlndGUgUGVyc29uKTwvaDI+PGRpdiBjbGFzcz0iZmllbGRzIj4KPGRpdiBjbGFzcz0iZmllbGQiPjxsYWJlbD5Wb3JuYW1lKG4pPC9sYWJlbD48aW5wdXQ+PC9kaXY+PGRpdiBjbGFzcz0iZmllbGQiPjxsYWJlbD5OYWNobmFtZTwvbGFiZWw+PGlucHV0PjwvZGl2Pgo8ZGl2IGNsYXNzPSJmaWVsZCI+PGxhYmVsPlZlcmjDpGx0bmlzIHp1ciB2ZXJzdG9yYmVuZW4gUGVyc29uPC9sYWJlbD48aW5wdXQgcGxhY2Vob2xkZXI9InouIEIuIEVoZXBhcnRuZXIvaW4sIEtpbmQiPjwvZGl2PjxkaXYgY2xhc3M9ImZpZWxkIj48bGFiZWw+VGVsZWZvbjwvbGFiZWw+PGlucHV0IHR5cGU9InRlbCI+PC9kaXY+CjxkaXYgY2xhc3M9ImZpZWxkIGZ1bGwiPjxsYWJlbD5BZHJlc3NlIChTdHJhc3NlLCBQTFosIE9ydCk8L2xhYmVsPjxpbnB1dD48L2Rpdj48ZGl2IGNsYXNzPSJmaWVsZCBmdWxsIj48bGFiZWw+RS1NYWlsPC9sYWJlbD48aW5wdXQgdHlwZT0iZW1haWwiPjwvZGl2Pgo8L2Rpdj48L2Rpdj4KPGRpdiBjbGFzcz0ic2VjdGlvbiI+PGgyPjMuIEJldm9sbG3DpGNodGlndGUgU3RlbGxlPC9oMj48ZGl2IGNsYXNzPSJmaWVsZHMiPgo8ZGl2IGNsYXNzPSJmaWVsZCBmdWxsIj48bGFiZWw+TmFtZSAvIEZpcm1hPC9sYWJlbD48aW5wdXQgdmFsdWU9IkZ1bmVyYWxQbGFuZXIiPjwvZGl2Pgo8ZGl2IGNsYXNzPSJmaWVsZCBmdWxsIj48bGFiZWw+QWRyZXNzZSAvIEtvbnRha3RhbmdhYmVuPC9sYWJlbD48aW5wdXQgcGxhY2Vob2xkZXI9IkJpdHRlIEtvbnRha3RkYXRlbiBkZXIgYmV2b2xsbcOkY2h0aWd0ZW4gU3RlbGxlIGVyZ8OkbnplbiI+PC9kaXY+CjwvZGl2PjwvZGl2Pgo8ZGl2IGNsYXNzPSJzZWN0aW9uIj48aDI+NC4gVW1mYW5nIGRlciBWb2xsbWFjaHQ8L2gyPgo8ZGl2IGNsYXNzPSJ0aWNrIj48aW5wdXQgdHlwZT0iY2hlY2tib3giIGNoZWNrZWQ+PHNwYW4+RGVuIFRvZGVzZmFsbCBiZWltIHp1c3TDpG5kaWdlbiBCZXN0YXR0dW5nc2FtdCBpbSBOYW1lbiBkZXIgdW50ZXJ6ZWljaG5lbmRlbiBQZXJzb24gbWVsZGVuLjwvc3Bhbj48L2Rpdj4KPGRpdiBjbGFzcz0idGljayI+PGlucHV0IHR5cGU9ImNoZWNrYm94IiBjaGVja2VkPjxzcGFuPkbDvHIgZGllc2UgTWVsZHVuZyBlcmZvcmRlcmxpY2hlIEFuZ2FiZW4gdW5kIHZvcmhhbmRlbmUgVW50ZXJsYWdlbiDDvGJlcm1pdHRlbG4gc293aWUgUsO8Y2tmcmFnZW4genVyIE1lbGR1bmcgZW50Z2VnZW5uZWhtZW4uPC9zcGFuPjwvZGl2Pgo8ZGl2IGNsYXNzPSJ0aWNrIj48aW5wdXQgdHlwZT0iY2hlY2tib3giPjxzcGFuPldlaXRlcmUgQmVmdWduaXNzZSAoYml0dGUgZ2VuYXUgYmV6ZWljaG5lbik6PC9zcGFuPjwvZGl2Pjx0ZXh0YXJlYSBhcmlhLWxhYmVsPSJXZWl0ZXJlIEJlZnVnbmlzc2UiPjwvdGV4dGFyZWE+CjxwPkRpZXNlIFZvbGxtYWNodCB1bWZhc3N0IDxzdHJvbmc+a2VpbmU8L3N0cm9uZz4gd2VpdGVyZ2VoZW5kZSBCZWZ1Z25pcywgdmVyYmluZGxpY2ggw7xiZXIgQmVzdGF0dHVuZ3NhcnQsIEJlc3RhdHR1bmdzb3J0LCBLb3N0ZW7DvGJlcm5haG1lbiBvZGVyIGFuZGVyZSBBbmdlbGVnZW5oZWl0ZW4genUgZW50c2NoZWlkZW4sIHNvZmVybiBkaWVzIG5pY2h0IGF1c2Ryw7xja2xpY2ggc2NocmlmdGxpY2ggZXJnw6RuenQgdW5kIHdpcmtzYW0gdmVyZWluYmFydCB3dXJkZS48L3A+CjwvZGl2Pgo8ZGl2IGNsYXNzPSJzZWN0aW9uIj48aDI+NS4gRXJrbMOkcnVuZyB1bmQgVW50ZXJzY2hyaWZ0PC9oMj48cD5JY2ggYmVzdMOkdGlnZSwgZGFzcyBpY2ggenVyIEVydGVpbHVuZyBkaWVzZXIgVm9sbG1hY2h0IGJlcmVjaHRpZ3QgYmluLiBJY2ggZXJtw6RjaHRpZ2UgZGllIG9iZW4gYmV6ZWljaG5ldGUgU3RlbGxlIGltIGJlc2NocmllYmVuZW4gVW1mYW5nLCBpbiBtZWluZW0gTmFtZW4genUgaGFuZGVsbi4gTWlyIGlzdCBiZWthbm50LCBkYXNzIGRhcyB6dXN0w6RuZGlnZSBCZXN0YXR0dW5nc2FtdCB6dXPDpHR6bGljaGUgTmFjaHdlaXNlIG9kZXIgZWluIGVpZ2VuZXMgRm9ybXVsYXIgdmVybGFuZ2VuIGthbm4uPC9wPgo8ZGl2IGNsYXNzPSJmaWVsZHMiPjxkaXYgY2xhc3M9ImZpZWxkIj48bGFiZWw+T3J0PC9sYWJlbD48aW5wdXQ+PC9kaXY+PGRpdiBjbGFzcz0iZmllbGQiPjxsYWJlbD5EYXR1bTwvbGFiZWw+PGlucHV0IHBsYWNlaG9sZGVyPSJUVC5NTS5KSkpKIj48L2Rpdj48L2Rpdj4KPGRpdiBjbGFzcz0ic2lnbmF0dXJlcyI+PGRpdj48ZGl2IGNsYXNzPSJzaWduIj48L2Rpdj48ZGl2IGNsYXNzPSJzbWFsbCI+VW50ZXJzY2hyaWZ0IGRlciB2b2xsbWFjaHRnZWJlbmRlbiBQZXJzb248L2Rpdj48L2Rpdj48ZGl2PjxkaXYgY2xhc3M9InNpZ24iPjwvZGl2PjxkaXYgY2xhc3M9InNtYWxsIj5OYW1lIGluIERydWNrc2NocmlmdCAob3B0aW9uYWwpPC9kaXY+PC9kaXY+PC9kaXY+CjwvZGl2Pgo8ZGl2IGNsYXNzPSJmb290bm90ZSI+SGlud2VpczogRGllc2VzIEZvcm11bGFyIGlzdCBlaW5lIFZvcmxhZ2UgdW5kIGtlaW4gYW10bGljaGVzIEZvcm11bGFyLiBCaXR0ZSBwcsO8ZmVuIFNpZSwgb2IgZGFzIHp1c3TDpG5kaWdlIEJlc3RhdHR1bmdzYW10IHp1c8OkdHpsaWNoZSBVbnRlcmxhZ2VuLCBlaW5lbiBJZGVudGl0w6R0c25hY2h3ZWlzIG9kZXIgZWluZSBiZXNvbmRlcmUgRm9ybSBkZXIgVm9sbG1hY2h0IHZlcmxhbmd0LjwvZGl2Pgo8L21haW4+PHNjcmlwdD4KLy8gw5xiZXJuaW1tdCBsZWRpZ2xpY2ggU3RhbW1kYXRlbiBhdXMgZGVyIGFrdHVlbGwgZ2XDtmZmbmV0ZW4gRGVtby1GYWxsYWt0ZS4KY29uc3QgcD1uZXcgVVJMU2VhcmNoUGFyYW1zKGxvY2F0aW9uLnNlYXJjaCk7CmNvbnN0IGZpZWxkcz1bLi4uZG9jdW1lbnQucXVlcnlTZWxlY3RvckFsbCgnaW5wdXQnKV07CmZ1bmN0aW9uIGZtdCh2KXtpZighL15cZHs0fS1cZHsyfS1cZHsyfSQvLnRlc3Qodnx8JycpKXJldHVybiB2fHwnJztjb25zdCBbeSxtLGRdPXYuc3BsaXQoJy0nKTtyZXR1cm4gYCR7ZH0uJHttfS4ke3l9YDt9CmNvbnN0IHBhaXJzPVtbMCwnZmlyc3ROYW1lJ10sWzEsJ2xhc3ROYW1lJ10sWzIsJ2JpcnRoRGF0ZSddLFszLCdkZWF0aERhdGUnXSxbNCwnYWRkcmVzcyddLFs1LCdjb250YWN0TmFtZSddLFs3LCdyZWxhdGlvbnNoaXAnXSxbOCwnY29udGFjdFBob25lJ10sWzksJ2NvbnRhY3RBZGRyZXNzJ10sWzEwLCdjb250YWN0RW1haWwnXV07CmZvcihjb25zdCBbaWR4LGtleV0gb2YgcGFpcnMpe2lmKHAuaGFzKGtleSkmJmZpZWxkc1tpZHhdKWZpZWxkc1tpZHhdLnZhbHVlPVsnYmlydGhEYXRlJywnZGVhdGhEYXRlJ10uaW5jbHVkZXMoa2V5KT9mbXQocC5nZXQoa2V5KSk6cC5nZXQoa2V5KTt9CmlmKHAuaGFzKCd6aXBjaXR5JykmJmZpZWxkc1s0XSlmaWVsZHNbNF0udmFsdWU9W3AuZ2V0KCdhZGRyZXNzJykscC5nZXQoJ3ppcGNpdHknKV0uZmlsdGVyKEJvb2xlYW4pLmpvaW4oJywgJyk7CmlmKHAuaGFzKCdjb250YWN0TmFtZScpKXtjb25zdCBwYXJ0cz1wLmdldCgnY29udGFjdE5hbWUnKS50cmltKCkuc3BsaXQoL1xzKy8pO2lmKHBhcnRzLmxlbmd0aD4xKXtmaWVsZHNbNV0udmFsdWU9cGFydHMuc2xpY2UoMCwtMSkuam9pbignICcpO2ZpZWxkc1s2XS52YWx1ZT1wYXJ0cy5hdCgtMSk7fWVsc2UgZmllbGRzWzVdLnZhbHVlPXBhcnRzWzBdfHwnJzt9Cjwvc2NyaXB0PjwvYm9keT48L2h0bWw+Cg=='}];
+const canvas = $('signature'), ctx = canvas.getContext('2d');
+function resizeCanvas(){
+ const ratio = Math.max(window.devicePixelRatio || 1,1), rect=canvas.getBoundingClientRect();
+ const old=signatureData;
+ canvas.width=Math.max(1,rect.width*ratio); canvas.height=Math.max(1,rect.height*ratio);
+ ctx.setTransform(ratio,0,0,ratio,0,0); ctx.lineWidth=2;ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle='#263a4b';
+ if(old){const img=new Image();img.onload=()=>ctx.drawImage(img,0,0,rect.width,rect.height);img.src=old;}
+}
+let drawing=false, moved=false;
+function pos(e){const r=canvas.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top};}
+canvas.addEventListener('pointerdown',e=>{drawing=true;moved=false;canvas.setPointerCapture(e.pointerId);const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);});
+canvas.addEventListener('pointermove',e=>{if(!drawing)return;const p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke();moved=true;});
+function finish(){if(!drawing)return;drawing=false;if(moved){signatureData=canvas.toDataURL('image/png');$('sigStatus').textContent='Unterschrift erfasst';}}
+canvas.addEventListener('pointerup',finish);canvas.addEventListener('pointercancel',finish);
+$('clearSig').addEventListener('click',()=>{ctx.clearRect(0,0,canvas.width,canvas.height);signatureData='';$('sigStatus').textContent='Noch nicht unterschrieben';});
+window.addEventListener('resize',resizeCanvas);
+function value(id){const el=$(id);return el.type==='checkbox'?el.checked:el.value.trim();}
+function collect(){const data={};fields.forEach(k=>data[k]=value(k));return {...data,id:currentId||(crypto.randomUUID?crypto.randomUUID():'fall-'+Date.now()),attachments:[...remoteAttachments,...attachments.map(a=>({name:a.name,type:a.type,size:a.size}))],selectedPowerDocs:selectedPowerDocs.map(d=>({...d})),otherDocNames:[...otherDocNames],signature:signatureData,powers:powers.map(p=>({...p})),updatedAt:new Date().toISOString()};}
+function renderOtherDocNames(){
+ const root=$('otherDocNames');
+ if(!root)return;
+ root.innerHTML='';
+ otherDocNames.forEach((name,i)=>{
+  const row=document.createElement('div');row.className='docrow';
+  const label=document.createElement('span');label.textContent=name;row.appendChild(label);
+  const remove=document.createElement('button');remove.type='button';remove.className='secondary';remove.textContent='Entfernen';
+  remove.addEventListener('click',()=>{otherDocNames.splice(i,1);renderOtherDocNames();});
+  row.appendChild(remove);root.appendChild(row);
+ });
+}
+function fill(data){powers=(data.powers||[]).map(p=>({...p}));selectedPowerDocs=(data.selectedPowerDocs||[]).map(d=>({...d}));otherDocNames=(data.otherDocNames||[]).slice();remoteAttachments=(data.attachments||[]).filter(d=>d.dropboxPath);renderPowers();renderSelectedPowerDocs();renderOtherDocNames();fields.forEach(k=>{const el=$(k);if(!el)return;if(el.type==='checkbox')el.checked=!!data[k];else el.value=data[k]||'';});attachments=[];$('docList').innerHTML='';remoteAttachments.forEach(renderRemoteAttachment);signatureData=data.signature||'';resizeCanvas();if(signatureData){const img=new Image();img.onload=()=>ctx.drawImage(img,0,0,canvas.clientWidth,canvas.clientHeight);img.src=signatureData;$('sigStatus').textContent='Unterschrift erfasst';}else $('sigStatus').textContent='Noch nicht unterschrieben';}
+function renderPowers(){
+ const root=$('powerList');root.innerHTML='';
+ if(!powers.length){root.innerHTML='<p class="small">Noch keine zusätzlichen Vollmachtsentwürfe angelegt.</p>';return;}
+ powers.forEach((p,i)=>{const row=document.createElement('div');row.className='docrow';const span=document.createElement('span');span.textContent=`${i+1}. Vollmachtsentwurf – ${p.label||'Name noch offen'}`;row.appendChild(span);const btn=document.createElement('button');btn.type='button';btn.className='secondary';btn.textContent='Entwurf öffnen';btn.addEventListener('click',openPower);row.appendChild(btn);root.appendChild(row);});
+}
+function resetForm(){fill({});}
+
+
+function openStoredPowerDoc(doc){
+ if(!doc)return;
+ if(doc.kind==='embedded-template'||doc.id==='death-report-power'){
+  const caseData=collect();
+  const params=new URLSearchParams();
+  const values={
+   firstName:caseData.firstName||'',lastName:caseData.lastName||'',
+   birthDate:caseData.birthDate||'',deathDate:caseData.deathDate||'',
+   address:caseData.address||'',zipcity:caseData.zipcity||'',
+   contactName:caseData.contactName||'',relationship:caseData.relationship||'',
+   contactPhone:caseData.contactPhone||'',contactAddress:caseData.contactAddress||'',
+   contactEmail:caseData.contactEmail||''
+  };
+  Object.entries(values).forEach(([k,v])=>{if(v)params.set(k,v);});
+  const encoded=doc.templateB64||storedPowerTemplates.find(d=>d.id===doc.id)?.templateB64||'';
+  const binary=atob(encoded), bytes=Uint8Array.from(binary,ch=>ch.charCodeAt(0));
+  const html=new TextDecoder('utf-8').decode(bytes);
+  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const targetUrl=url+(params.toString()?'?'+params.toString():'');
+  const opened=window.open(targetUrl,'_blank');
+  // Blob URL wird nicht sofort widerrufen, damit die neue Registerkarte sicher laden kann.
+  setTimeout(()=>URL.revokeObjectURL(url),120000);
+  if(!opened)$('status').textContent='Der Browser hat das neue Fenster blockiert. Bitte Pop-ups für diese App erlauben und nochmals auf «Öffnen» klicken.';
+  return;
+ }
+ if(doc.file)window.open(doc.file,'_blank','noopener');
+ else $('status').textContent='Für dieses Dokument ist keine Öffnungsdatei hinterlegt.';
+}
+
+function renderSelectedPowerDocs(){
+ const root=$('selectedPowerDocs');root.innerHTML='';
+ if(!selectedPowerDocs.length){root.innerHTML='<p class="small">Noch keine Vollmacht oder Bestattungsverfügung angehängt.</p>';return;}
+ selectedPowerDocs.forEach((doc,i)=>{const row=document.createElement('div');row.className='docrow';const span=document.createElement('span');span.textContent='📎 '+doc.name+' · angehängt';row.appendChild(span);const open=document.createElement('button');open.type='button';open.className='secondary';open.textContent='Öffnen';open.addEventListener('click',()=>openStoredPowerDoc(doc));row.appendChild(open);const remove=document.createElement('button');remove.type='button';remove.className='secondary';remove.textContent='Entfernen';remove.addEventListener('click',()=>{selectedPowerDocs.splice(i,1);$('docWish').checked=selectedPowerDocs.length>0;renderSelectedPowerDocs();$('status').textContent='Dokument aus der Demo-Fallakte entfernt.';});row.appendChild(remove);root.appendChild(row);});
+}
+function openPowerChooser(){
+ const root=$('powerChoices');root.innerHTML='';
+ storedPowerTemplates.forEach(doc=>{const label=document.createElement('label');label.className='choice';const radio=document.createElement('input');radio.type='radio';radio.name='powerChoice';radio.value=doc.id;const textWrap=document.createElement('span');const title=document.createElement('strong');title.textContent=doc.name;const desc=document.createElement('span');desc.className='small';desc.textContent=doc.description;textWrap.append(title,desc);label.append(radio,textWrap);label.addEventListener('click',()=>{radio.checked=true;});root.appendChild(label);});
+ const uploadLabel=document.createElement('label');uploadLabel.className='choice';const uploadRadio=document.createElement('input');uploadRadio.type='radio';uploadRadio.name='powerChoice';uploadRadio.value='upload-existing';const uploadText=document.createElement('span');const uploadTitle=document.createElement('strong');uploadTitle.textContent='Eigene Bestattungsverfügung / Vollmacht als PDF auswählen';const uploadDesc=document.createElement('span');uploadDesc.className='small';uploadDesc.textContent='Ein bereits vorhandenes Dokument von diesem Gerät auswählen.';uploadText.append(uploadTitle,uploadDesc);uploadLabel.append(uploadRadio,uploadText);uploadLabel.addEventListener('click',()=>{uploadRadio.checked=true;});root.appendChild(uploadLabel);
+ let fileInput=document.createElement('input');fileInput.type='file';fileInput.accept='.pdf,application/pdf,image/*';fileInput.className='hidden';fileInput.id='powerUpload';root.appendChild(fileInput);
+ const actions=document.createElement('div');actions.className='actions';const attach=document.createElement('button');attach.type='button';attach.textContent='Auswahl anhängen';attach.addEventListener('click',()=>{
+  const selected=root.querySelector('input[name="powerChoice"]:checked');if(!selected){$('status').textContent='Bitte zuerst ein Dokument auswählen.';return;}
+  if(selected.value==='upload-existing'){
+   const file=fileInput.files&&fileInput.files[0];if(!file){fileInput.classList.remove('hidden');fileInput.click();$('status').textContent='Bitte eine PDF-Datei oder ein Bild auswählen und danach erneut «Auswahl anhängen» drücken.';return;}
+   attachments.push(file);selectedPowerDocs.push({id:'upload-'+Date.now(),name:file.name,type:file.type,size:file.size,kind:'uploaded'});
+  } else {
+   const doc=storedPowerTemplates.find(d=>d.id===selected.value);if(!doc)return;
+   if(!selectedPowerDocs.some(d=>d.id===doc.id))selectedPowerDocs.push({...doc,kind:'embedded-template'});
+  }
+  $('docWish').checked=selectedPowerDocs.length>0;renderSelectedPowerDocs();$('powerModal').classList.add('hidden');$('status').textContent='Dokument der Fallakte zugeordnet. Bitte die Fallakte speichern, damit Änderungen in Dropbox übernommen werden.';
+ });actions.appendChild(attach);root.appendChild(actions);
+ $('powerModal').classList.remove('hidden');
+}
+
+$('docWish').addEventListener('change',()=>{if($('docWish').checked){openPowerChooser();}else if(selectedPowerDocs.length){$('docWish').checked=true;openPowerChooser();}else renderSelectedPowerDocs();});
+$('cancelPowerChoice').addEventListener('click',()=>{$('powerModal').classList.add('hidden');$('docWish').checked=selectedPowerDocs.length>0;});
+$('powerModal').addEventListener('click',e=>{if(e.target===$('powerModal')){$('powerModal').classList.add('hidden');$('docWish').checked=selectedPowerDocs.length>0;}});
+$('newPower').addEventListener('click',()=>{
+ const label=prompt('Name der bevollmächtigenden Person (für die Übersicht):');if(label===null)return;
+ powers.push({id:'vollmacht-'+Date.now(),createdAt:new Date().toISOString(),label:label.trim()||'Name noch offen'});renderPowers();openPower();$('status').textContent='Neuer Vollmachtsentwurf geöffnet. Die dauerhafte Archivierung muss noch angebunden werden.';
+});
+function dbxAppKey(){return $('dropboxAppKey').value.trim()||localStorage.getItem('fp_td_dbx_appkey')||'';}
+function updateDropboxStatus(message){$('dropboxStatus').textContent=message;}
+function redirectUri(){return location.origin==='null'?'':location.origin+location.pathname;}
+$('redirectUriText').textContent='Weiterleitungs-URL (in Dropbox-App eintragen): '+(redirectUri()||'Erst nach Bereitstellung über HTTPS verfügbar');
+if(localStorage.getItem('fp_td_dbx_appkey'))$('dropboxAppKey').value=localStorage.getItem('fp_td_dbx_appkey');
+async function sha256Base64Url(text){const bytes=new TextEncoder().encode(text);const digest=await crypto.subtle.digest('SHA-256',bytes);return btoa(String.fromCharCode(...new Uint8Array(digest))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
+async function connectDropbox(){const key=dbxAppKey(),uri=redirectUri();if(!key){updateDropboxStatus('Bitte den App-Key der separaten Dropbox-App eintragen.');return;}if(!uri){updateDropboxStatus('Dropbox-Anmeldung funktioniert erst über eine bereitgestellte HTTPS-Adresse, nicht beim direkten Öffnen als Datei.');return;}localStorage.setItem('fp_td_dbx_appkey',key);const verifier=Array.from(crypto.getRandomValues(new Uint8Array(48)),b=>('0'+b.toString(16)).slice(-2)).join('');const challenge=await sha256Base64Url(verifier);dropboxState=Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>('0'+b.toString(16)).slice(-2)).join('');sessionStorage.setItem('fp_td_dbx_verifier',verifier);sessionStorage.setItem('fp_td_dbx_state',dropboxState);const url=new URL('https://www.dropbox.com/oauth2/authorize');url.searchParams.set('client_id',key);url.searchParams.set('response_type','code');url.searchParams.set('code_challenge',challenge);url.searchParams.set('code_challenge_method','S256');url.searchParams.set('redirect_uri',uri);url.searchParams.set('token_access_type','offline');url.searchParams.set('scope','files.content.read files.content.write files.metadata.read');url.searchParams.set('state',dropboxState);location.href=url.toString();}
+async function exchangeDropboxCode(){const params=new URLSearchParams(location.search),code=params.get('code'),state=params.get('state'),err=params.get('error_description')||params.get('error');if(err){updateDropboxStatus('Dropbox-Anmeldung abgebrochen: '+err);history.replaceState({},'',location.pathname);return;}if(!code)return;const verifier=sessionStorage.getItem('fp_td_dbx_verifier'),expected=sessionStorage.getItem('fp_td_dbx_state');if(!verifier||!expected||state!==expected){updateDropboxStatus('Dropbox-Anmeldung abgebrochen: Sicherheitsprüfung fehlgeschlagen.');history.replaceState({},'',location.pathname);return;}try{const body=new URLSearchParams({code,grant_type:'authorization_code',client_id:dbxAppKey(),redirect_uri:redirectUri(),code_verifier:verifier});const res=await fetch('https://api.dropboxapi.com/oauth2/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});const tok=await res.json();if(!res.ok)throw new Error(tok.error_description||tok.error||'Token-Austausch fehlgeschlagen');dropboxAccessToken=tok.access_token;dropboxRefreshToken=tok.refresh_token||dropboxRefreshToken;dropboxTokenExpiry=Date.now()+(tok.expires_in||14400)*1000;sessionStorage.setItem('fp_td_dbx_access',dropboxAccessToken);sessionStorage.setItem('fp_td_dbx_refresh',dropboxRefreshToken);sessionStorage.setItem('fp_td_dbx_expiry',String(dropboxTokenExpiry));updateDropboxStatus('Dropbox verbunden. Verbindung wird nur für diese Browser-Sitzung gehalten.');history.replaceState({},'',location.pathname);await syncCasesFromDropbox();}catch(e){updateDropboxStatus('Dropbox-Verbindung fehlgeschlagen: '+e.message);history.replaceState({},'',location.pathname);}}
+async function getDropboxToken(){if(dropboxAccessToken&&Date.now()<dropboxTokenExpiry-60000)return dropboxAccessToken;if(!dropboxRefreshToken)throw new Error('Nicht mit Dropbox verbunden.');const body=new URLSearchParams({grant_type:'refresh_token',refresh_token:dropboxRefreshToken,client_id:dbxAppKey()});const res=await fetch('https://api.dropboxapi.com/oauth2/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});const tok=await res.json();if(!res.ok)throw new Error(tok.error_description||tok.error||'Token-Erneuerung fehlgeschlagen');dropboxAccessToken=tok.access_token;dropboxTokenExpiry=Date.now()+(tok.expires_in||14400)*1000;sessionStorage.setItem('fp_td_dbx_access',dropboxAccessToken);sessionStorage.setItem('fp_td_dbx_expiry',String(dropboxTokenExpiry));return dropboxAccessToken;}
+async function dbxApi(endpoint,args){const token=await getDropboxToken();const res=await fetch('https://api.dropboxapi.com/2/'+endpoint,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify(args||{})});const body=await res.json().catch(()=>({}));if(!res.ok)throw new Error(body.error_summary||endpoint+' fehlgeschlagen');return body;}
+async function dbxDeletePath(path){return await dbxApi('files/delete_v2',{path});}
+async function dbxCreateFolder(path){try{return await dbxApi('files/create_folder_v2',{path,autorename:false});}catch(e){if(!String(e.message).includes('conflict'))throw e;}}
+async function dbxUpload(path,content,contentType){const token=await getDropboxToken();const res=await fetch('https://content.dropboxapi.com/2/files/upload',{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/octet-stream','Dropbox-API-Arg':JSON.stringify({path,mode:'overwrite',autorename:false,mute:true})},body:content});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data.error_summary||'Datei-Upload fehlgeschlagen');return data;}
+async function dbxDownloadText(path){const token=await getDropboxToken();const res=await fetch('https://content.dropboxapi.com/2/files/download',{method:'POST',headers:{'Authorization':'Bearer '+token,'Dropbox-API-Arg':JSON.stringify({path})}});if(!res.ok)throw new Error('Datei konnte nicht aus Dropbox geladen werden.');return await res.text();}
+function safeName(s){return String(s||'Dokument').normalize('NFKD').replace(/[^\p{L}\p{N}_.-]+/gu,'_').slice(0,100)||'Dokument';}
+function renderRemoteAttachment(doc){
+ const row=document.createElement('div');row.className='docrow';
+ const span=document.createElement('span');span.textContent='📎 '+doc.name+' · in Dropbox';row.appendChild(span);
+ const preview=document.createElement('button');preview.type='button';preview.className='secondary';preview.textContent='Kurzansicht';
+ preview.addEventListener('click',async()=>{let url='';try{const token=await getDropboxToken();const res=await fetch('https://content.dropboxapi.com/2/files/download',{method:'POST',headers:{'Authorization':'Bearer '+token,'Dropbox-API-Arg':JSON.stringify({path:doc.dropboxPath})}});if(!res.ok)throw new Error('Dokument konnte nicht geladen werden.');const blob=await res.blob();url=URL.createObjectURL(blob);const back=document.createElement('div');back.className='modalback';back.style.zIndex='100';const panel=document.createElement('div');panel.className='modal';panel.style.width='min(900px,100%)';panel.style.maxHeight='90vh';const heading=document.createElement('div');heading.style.cssText='display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px';const title=document.createElement('strong');title.textContent=doc.name;const close=document.createElement('button');close.type='button';close.className='secondary';close.textContent='Schliessen';heading.append(title,close);panel.appendChild(heading);let content;if((blob.type||'').startsWith('image/')||/\.(png|jpe?g|gif|webp|bmp|heic)$/i.test(doc.name)){content=document.createElement('img');content.src=url;content.alt=doc.name;content.style.cssText='display:block;max-width:100%;max-height:72vh;object-fit:contain;margin:auto';}else if(blob.type==='application/pdf'||/\.pdf$/i.test(doc.name)){content=document.createElement('iframe');content.src=url;content.title=doc.name;content.style.cssText='width:100%;height:72vh;border:1px solid #d9dfdf;border-radius:8px';}else{content=document.createElement('p');content.textContent='Für diesen Dateityp ist keine Kurzansicht verfügbar. Bitte verwenden Sie «Herunterladen».';}panel.appendChild(content);back.appendChild(panel);const cleanup=()=>{back.remove();if(url)URL.revokeObjectURL(url);};close.addEventListener('click',cleanup);back.addEventListener('click',e=>{if(e.target===back)cleanup();});document.body.appendChild(back);}catch(e){if(url)URL.revokeObjectURL(url);$('status').textContent=e.message||'Kurzansicht fehlgeschlagen.';}});
+ row.appendChild(preview);
+ const open=document.createElement('button');open.type='button';open.className='secondary';open.textContent='Herunterladen';
+ open.addEventListener('click',async()=>{try{const token=await getDropboxToken();const res=await fetch('https://content.dropboxapi.com/2/files/download',{method:'POST',headers:{'Authorization':'Bearer '+token,'Dropbox-API-Arg':JSON.stringify({path:doc.dropboxPath})}});if(!res.ok)throw new Error('Download fehlgeschlagen');const blob=await res.blob(),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=doc.name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}catch(e){$('status').textContent=e.message;}});
+ row.appendChild(open);
+ const remove=document.createElement('button');remove.type='button';remove.className='secondary';remove.textContent='Entfernen';
+ remove.addEventListener('click',async()=>{
+  if(!confirm('Soll das Dokument «'+doc.name+'» dauerhaft aus dieser Fallakte und Dropbox gelöscht werden?'))return;
+  try{
+   await dbxDeletePath(doc.dropboxPath);
+   remoteAttachments=remoteAttachments.filter(x=>x.dropboxPath!==doc.dropboxPath);
+   const c=cases.find(x=>x.id===currentId);
+   if(c){
+    c.attachments=(c.attachments||[]).filter(x=>x.dropboxPath!==doc.dropboxPath);
+    c.updatedAt=new Date().toISOString();
+    const base=DROPBOX_ROOT+'/'+safeName(c.id);
+    await dbxUpload(base+'/case.json',new Blob([JSON.stringify(c,null,2)],{type:'application/json'}),'application/json');
+   }
+   row.remove();$('status').textContent='Dokument gelöscht.';
+  }catch(e){$('status').textContent='Dokument konnte nicht gelöscht werden: '+(e.message||'Unbekannter Fehler');}
+ });
+ row.appendChild(remove);$('docList').appendChild(row);
+}
+async function syncCasesFromDropbox(){
+ try{
+  if(!dropboxAccessToken&&!dropboxRefreshToken){updateDropboxStatus('Bitte zuerst Dropbox verbinden.');return;}
+  await dbxCreateFolder(DROPBOX_ROOT);
+  let listing=await dbxApi('files/list_folder',{path:DROPBOX_ROOT,recursive:false,include_deleted:false});
+  const entries=[...(listing.entries||[])];
+  while(listing.has_more){listing=await dbxApi('files/list_folder/continue',{cursor:listing.cursor});entries.push(...(listing.entries||[]));}
+  const folders=entries.filter(x=>x['.tag']==='folder');
+  const loaded=[],errors=[];
+  for(const entry of folders){
+   let raw=null,lastError=null;
+   for(const filename of ['case.json','case']){
+    try{raw=await dbxDownloadText(entry.path_lower+'/'+filename);break;}catch(e){lastError=e;}
+   }
+   if(raw!==null){
+    try{const data=JSON.parse(raw);if(data&&typeof data==='object'){if(!data.id)data.id=entry.name;loaded.push(data);}else errors.push(entry.name+': Datei enthält keine Akte.');}
+    catch(e){errors.push(entry.name+': JSON-Datei ist ungültig.');}
+   }else errors.push(entry.name+': keine lesbare case.json- oder case-Datei ('+(lastError&&lastError.message||'unbekannter Fehler')+').');
+  }
+  cases=loaded;
+  renderList();
+  // Datenschutz: Beim Start/Synchronisieren keine Akte automatisch öffnen.
+  // Die Form bleibt leer, bis die Benutzerin/der Benutzer aktiv eine Akte auswählt.
+  currentId=null;
+  resetForm();
+  $('pageTitle').textContent='Keine Akte ausgewählt';
+  renderList();
+  updateDropboxStatus('Dropbox: '+loaded.length+' Akte(n) geladen.'+(errors.length?' Probleme: '+errors.slice(0,3).join(' | '):''));
+ }catch(e){updateDropboxStatus('Dropbox-Synchronisation fehlgeschlagen: '+e.message);}
+}
+async function saveCaseToDropbox(c){const base=DROPBOX_ROOT+'/'+safeName(c.id);await dbxCreateFolder(DROPBOX_ROOT);await dbxCreateFolder(base);await dbxCreateFolder(base+'/documents');const savedFiles=[];for(const file of attachments){const path=base+'/documents/'+safeName(file.name);await dbxUpload(path,file,file.type||'application/octet-stream');savedFiles.push({name:file.name,type:file.type,size:file.size,dropboxPath:path});}c.attachments=[...remoteAttachments.filter(d=>d.dropboxPath),...savedFiles];c.updatedAt=new Date().toISOString();await dbxUpload(base+'/case.json',new Blob([JSON.stringify(c,null,2)],{type:'application/json'}),'application/json');remoteAttachments=c.attachments.filter(d=>d.dropboxPath);attachments=[];updateDropboxStatus('Fallakte und Dokumente in der separaten Dropbox-Ablage gespeichert.');}
+$('connectDropbox').addEventListener('click',connectDropbox);$('syncDropbox').addEventListener('click',syncCasesFromDropbox);
+exchangeDropboxCode();
+function renderList(){
+ const list=$('caseList');list.innerHTML='';
+ cases.forEach(c=>{
+  const el=document.createElement('div');
+  el.className='caseitem'+(c.id===currentId?' active':'');
+  const select=document.createElement('button');
+  select.type='button';select.className='case-select';
+  select.style.cssText='display:block;width:100%;text-align:left;background:transparent;color:inherit;border:0;padding:0;margin:0;cursor:pointer';
+  const name=document.createElement('strong');name.textContent=((c.firstName||'')+' '+(c.lastName||'')).trim()||'Unbenannter Todesfall';
+  const meta=document.createElement('span');meta.textContent=(c.deathDate||'Todesdatum offen');
+  select.append(name,meta);
+  select.addEventListener('click',()=>{currentId=c.id;fill(c);$('pageTitle').textContent=((c.firstName||'')+' '+(c.lastName||'')).trim()||'Todesfall bearbeiten';renderList();});
+  const del=document.createElement('button');del.type='button';del.className='delete-case';del.textContent='Löschen';del.title='Todesfallakte und zugehörige Dokumente löschen';
+  del.addEventListener('click',async(e)=>{e.preventDefault();e.stopPropagation();await deleteCase(c);});
+  el.append(select,del);list.appendChild(el);
+ });
+}
+async function deleteCase(c){
+ const label=((c.firstName||'')+' '+(c.lastName||'')).trim()||'diese Todesfallakte';
+ if(!confirm('Soll die Todesfallakte «'+label+'» einschliesslich aller zugehörigen Dokumente dauerhaft aus der separaten Dropbox-Ablage gelöscht werden? Dieser Vorgang kann nicht rückgängig gemacht werden.'))return;
+ try{
+  const path=DROPBOX_ROOT+'/'+safeName(c.id);
+  if(dropboxAccessToken||dropboxRefreshToken){await dbxDeletePath(path);}
+  cases=cases.filter(x=>x.id!==c.id);
+  if(currentId===c.id){currentId=null;resetForm();$('pageTitle').textContent='Keine Akte ausgewählt';attachments=[];remoteAttachments=[];}
+  renderList();
+  updateDropboxStatus('Todesfallakte «'+label+'» gelöscht.');
+ }catch(e){
+  updateDropboxStatus('Löschen fehlgeschlagen: '+(e.message||'Unbekannter Fehler')+'. Die Akte wurde nicht aus der Liste entfernt.');
+ }
+}
+function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function addLocalAttachment(file){
+ attachments.push(file);
+ const row=document.createElement('div');row.className='docrow';
+ const label=document.createElement('span');label.textContent='📎 '+file.name+' ('+Math.max(1,Math.round(file.size/1024))+' KB)';row.appendChild(label);
+ const remove=document.createElement('button');remove.type='button';remove.className='secondary';remove.textContent='Entfernen';
+ remove.addEventListener('click',()=>{attachments=attachments.filter(x=>x!==file);row.remove();});
+ row.appendChild(remove);$('docList').appendChild(row);
+ if(!$('emailModal').classList.contains('hidden'))refreshEmailPreview();
+}
+$('documents').addEventListener('change',e=>{for(const f of e.target.files)addLocalAttachment(f);e.target.value='';});
+const cameraDocumentLabels={
+ docID:'ID',
+ docRelativeID:'ID',
+ docDeath:'Todesschein',
+ docFamily:'Familienausweis',
+ docPermit:'Aufenthaltsbewilligung'
+};
+function currentPersonLabel(){
+ const first=($('firstName').value||'').trim(),last=($('lastName').value||'').trim();
+ return (first+' '+last).trim()||'Name offen';
+}
+function isMobileDocumentDevice(){
+ return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||(
+  window.matchMedia&&window.matchMedia('(pointer: coarse)').matches&&window.innerWidth<1100
+ );
+}
+function requestDocumentPhoto(checkboxId){
+ const checkbox=$(checkboxId),label=cameraDocumentLabels[checkboxId];
+ const existing=attachments.some(f=>f.fpDocumentType===checkboxId)||remoteAttachments.some(d=>d.documentType===checkboxId);
+ if(existing){$('status').textContent='Für '+label+' ist bereits ein Dokument angehängt. Entferne es zuerst, falls du ein neues Dokument hinzufügen möchtest.';return;}
+ const picker=document.createElement('input');picker.type='file';
+ const mobile=isMobileDocumentDevice();
+ picker.accept=mobile?'image/*':'image/*,.pdf';
+ if(mobile)picker.setAttribute('capture','environment');
+ picker.style.display='none';document.body.appendChild(picker);
+ let completed=false;
+ picker.addEventListener('change',()=>{
+  completed=true;
+  const original=picker.files&&picker.files[0];
+  if(!original){checkbox.checked=false;picker.remove();return;}
+  const safePerson=currentPersonLabel();
+  const isPdf=(original.type||'').toLowerCase()==='application/pdf'||/\.pdf$/i.test(original.name);
+  const ext=isPdf?'pdf':((original.name.match(/\.([a-zA-Z0-9]{2,5})$/)||[])[1]||((original.type||'').includes('png')?'png':'jpg'));
+  const namedFile=new File([original],label+' '+safePerson+'.'+ext,{type:original.type||(isPdf?'application/pdf':'image/jpeg'),lastModified:Date.now()});
+  Object.defineProperty(namedFile,'fpDocumentType',{value:checkboxId,configurable:true});
+  addLocalAttachment(namedFile);
+  $('status').textContent=(mobile?'Foto':'Datei')+' angehängt als «'+namedFile.name+'». Zum dauerhaften Speichern bitte «Fall speichern» drücken.';
+  picker.remove();
+ });
+ picker.addEventListener('cancel',()=>{checkbox.checked=false;picker.remove();});
+ picker.click();
+}
+Object.entries(cameraDocumentLabels).forEach(([id])=>{
+ const checkbox=$(id);if(!checkbox)return;
+ checkbox.addEventListener('change',()=>{
+  if(checkbox.checked)requestDocumentPhoto(id);
+  else{
+   const files=attachments.filter(f=>f.fpDocumentType===id);
+   if(files.length&&confirm('Das Kästchen ist deaktiviert. Soll das zugehörige Foto ebenfalls aus der Liste entfernt werden?')){
+    attachments=attachments.filter(f=>f.fpDocumentType!==id);
+    $('docList').innerHTML='';attachments.forEach(addLocalAttachment);remoteAttachments.forEach(renderRemoteAttachment);
+   }
+  }
+ });
+});
+$('newCase').addEventListener('click',()=>{currentId=null;fill({});$('caseForm').reset();attachments=[];selectedPowerDocs=[];otherDocNames=[];signatureData='';ctx.clearRect(0,0,canvas.width,canvas.height);$('docList').innerHTML='';renderSelectedPowerDocs();renderOtherDocNames();$('pageTitle').textContent='Neuer Todesfall';$('status').textContent='Neue leere Fallakte bereit.';renderList();});
+$('saveCase').addEventListener('click',async()=>{if(!$('caseForm').reportValidity())return;const c=collect();if(!currentId)c.id=crypto.randomUUID?crypto.randomUUID():'fall-'+Date.now();try{if(dropboxAccessToken||dropboxRefreshToken){await saveCaseToDropbox(c);}else{$('status').textContent='Noch keine Dropbox-Verbindung: Fall bleibt vorläufig nur in dieser Browser-Sitzung.';}}catch(e){$('status').textContent='Speichern in Dropbox fehlgeschlagen: '+e.message;return;}const i=cases.findIndex(x=>x.id===c.id);if(i>=0)cases[i]=c;else cases.unshift(c);currentId=c.id;$('pageTitle').textContent=(c.firstName+' '+c.lastName).trim();renderList();if(!(dropboxAccessToken||dropboxRefreshToken))$('status').textContent='Demo-Fall wurde nur für diese Browser-Sitzung gesichert.';});
+$('printPdf').addEventListener('click',async()=>{
+ if(!$('caseForm').reportValidity())return;
+ const pdfTab=window.open('about:blank','_blank');
+ if(!pdfTab){$('status').textContent='Der Browser hat das PDF-Fenster blockiert. Bitte Pop-ups für diese Seite erlauben und erneut versuchen.';return;}
+ pdfTab.document.write('<title>PDF wird erstellt …</title><p style="font:16px Arial;padding:24px">Das PDF wird erstellt. Bitte einen Moment warten …</p>');pdfTab.document.close();
+ try{
+  if(typeof html2pdf!=='function')throw new Error('Die PDF-Bibliothek konnte nicht geladen werden. Bitte Internetverbindung prüfen.');
+  const wrapper=document.createElement('div');wrapper.className='pdf-export';
+  const heading=document.createElement('h1');heading.textContent='FuneralPlaner – Todesfallakte';wrapper.appendChild(heading);
+  const name=document.createElement('p');name.textContent='Verstorbene Person: '+currentPersonLabel()+' · Todesdatum: '+($('deathDate').value||'offen');wrapper.appendChild(name);
+  const clone=$('caseForm').cloneNode(true);
+  clone.querySelectorAll('.no-print,.actions,button,input[type="file"]').forEach(el=>el.remove());
+  const originalControls=$('caseForm').querySelectorAll('input,textarea,select');
+  const clonedControls=clone.querySelectorAll('input,textarea,select');
+  originalControls.forEach((control,i)=>{
+   const copy=clonedControls[i];if(!copy)return;
+   if(control.type==='checkbox'||control.type==='radio'){
+    const mark=document.createElement('span');mark.className='pdf-value';mark.textContent=(control.checked?'☒ ':'☐ ')+(control.closest('label')?.innerText||control.parentElement?.innerText||'').trim();copy.replaceWith(mark);
+   }else{
+    const value=document.createElement('div');value.className='pdf-value';
+    value.textContent=control.tagName==='SELECT'?(control.selectedOptions[0]?.textContent||''):control.value||'—';copy.replaceWith(value);
+   }
+  });
+  clone.querySelectorAll('canvas').forEach(c=>{try{const img=document.createElement('img');img.src=c.toDataURL('image/png');img.style.cssText='max-width:100%;height:auto;max-height:70px';c.replaceWith(img);}catch(e){c.remove();}});
+  clone.querySelectorAll('.modalback,.hidden').forEach(el=>el.remove());
+  wrapper.appendChild(clone);document.body.appendChild(wrapper);
+  const safe=(currentPersonLabel()+'_'+($('deathDate').value||'Todesdatum-offen')).replace(/[^\p{L}\p{N}_.-]+/gu,'_');
+  const blob=await html2pdf().set({margin:[8,8,10,8],filename:'Todesfall_'+safe+'.pdf',image:{type:'jpeg',quality:0.96},html2canvas:{scale:1.6,useCORS:true,backgroundColor:'#ffffff',logging:false},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy'],avoid:['.section','.field','.check','.docrow','.sigwrap']}}).from(wrapper).toPdf().get('pdf').then(pdf=>pdf.output('blob'));
+  const url=URL.createObjectURL(blob);pdfTab.location.href=url;setTimeout(()=>URL.revokeObjectURL(url),120000);wrapper.remove();$('status').textContent='PDF erstellt und in einem neuen Fenster geöffnet.';
+ }catch(e){pdfTab.close();$('status').textContent='PDF konnte nicht erstellt werden: '+(e.message||'Unbekannter Fehler');}
+});
+function refreshEmailPreview(){
+ const first=$('firstName').value.trim(), last=$('lastName').value.trim(), birth=$('birthDate').value, death=$('deathDate').value;
+ const fullName=(first+' '+last).trim()||'[Name der verstorbenen Person]';
+ const birthText=birth?new Date(birth+'T12:00:00').toLocaleDateString('de-CH'):'[Geburtsdatum]';
+ const deathText=death?new Date(death+'T12:00:00').toLocaleDateString('de-CH'):'[Todesdatum]';
+ $('mailTo').value=$('officeEmail').value.trim();
+ $('mailSubject').value='Todesfallmeldung – '+fullName;
+ $('mailBody').value='Sehr geehrte Damen und Herren\n\nHiermit melden wir Ihnen im Auftrag der Angehörigen den Todesfall von '+fullName+', geboren am '+birthText+', verstorben am '+deathText+'.\n\nDen ärztlichen Todesschein finden Sie im Anhang dieser E-Mail.\n\nDie weiteren Unterlagen zum Todesfall werden durch uns sicher aufbewahrt und können dem zuständigen Bestattungsamt bei Bedarf jederzeit elektronisch übermittelt oder persönlich überbracht werden.\n\nFür Rückfragen oder die Anforderung weiterer Dokumente stehen wir Ihnen gerne zur Verfügung.\n\nFreundliche Grüsse\n\nFuneralPlaner';
+ const root=$('mailAttachments');root.innerHTML='';
+ const candidates=attachments.filter(f=>f instanceof File);
+ if(!candidates.length){root.innerHTML='<p class="small">Noch keine Dokumentdatei hochgeladen. Lade den ärztlichen Todesschein unter Punkt 4 hoch, bevor der Versand eingerichtet wird.</p>';return;}
+ candidates.forEach((file,i)=>{const row=document.createElement('label');row.className='check';const cb=document.createElement('input');cb.type='checkbox';cb.checked=/todesschein|todesbescheinigung|todesschein/i.test(file.name);cb.dataset.index=String(i);const text=document.createElement('span');text.textContent=file.name+(cb.checked?' · vorgeschlagen':'');row.append(cb,text);root.appendChild(row);});
+}
+$('emailPlan').addEventListener('click',()=>{refreshEmailPreview();$('emailModal').classList.remove('hidden');});
+$('openMailApp').addEventListener('click',()=>{const to=$('mailTo').value.trim();if(!to){$('mailStatus').textContent='Bitte zuerst die E-Mail-Adresse des Bestattungsamts unter den Falldaten eintragen.';return;}const url='mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent($('mailSubject').value)+'&body='+encodeURIComponent($('mailBody').value);window.location.href=url;$('mailStatus').textContent='Mailprogramm geöffnet, sofern auf diesem PC eingerichtet. Bitte den ärztlichen Todesschein als Anhang hinzufügen und die Nachricht dort senden.';});
+$('closeEmailModal').addEventListener('click',()=>$('emailModal').classList.add('hidden'));
+$('emailModal').addEventListener('click',e=>{if(e.target===$('emailModal'))$('emailModal').classList.add('hidden');});
+$('copyMailBody').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('mailBody').value);$('mailStatus').textContent='E-Mail-Text kopiert.';}catch(e){$('mailBody').focus();$('mailBody').select();$('mailStatus').textContent='Text markiert. Bitte kopiere ihn mit Strg+C bzw. auf dem iPhone über «Kopieren».';}});
+$('caseForm').addEventListener('submit',e=>e.preventDefault());
+resizeCanvas();renderList();renderSelectedPowerDocs();renderPowers();
+})();
+</script>
+</body>
+</html>
